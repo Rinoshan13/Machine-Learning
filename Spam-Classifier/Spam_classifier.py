@@ -161,4 +161,28 @@ print(f"  TP={TP}, FN={FN}")
 print(f"  FP={FP}, TN={TN}")
 
 
-     
+## ROC Curve 
+thresholds = np.linspace(0, 1, 200)
+tprs = []
+fprs = []
+
+for t in thresholds:
+    preds = probs_test >= t
+    tp = np.sum((preds == True) & (Y_test == 'spam'))
+    fn = np.sum((preds == False) & (Y_test == 'spam'))
+    fp = np.sum((preds == True) & (Y_test == 'ham'))
+    tn = np.sum((preds == False) & (Y_test == 'ham'))
+    tprs.append(tp / (tp + fn) if (tp + fn) > 0 else 0)
+    fprs.append(fp / (fp + tn) if (fp + tn) > 0 else 0)
+
+plt.figure(figsize=(7, 6))
+plt.plot(fprs, tprs, color='darkorange', lw=2, label='Bernoulli NB ROC curve')
+plt.plot([0, 1], [0, 1], color='navy', lw=1, linestyle='--', label='Random classifier')
+plt.scatter([FPR], [TPR], color='red', zorder=5, label=f'Threshold=0.5 (TPR={TPR:.2f}, FPR={FPR:.2f})')
+plt.xlabel('False Positive Rate (1 - Specificity)')
+plt.ylabel('True Positive Rate (Sensitivity)')
+plt.title('ROC Curve - Bernoulli Naive Bayes Spam Classifier')
+plt.legend(loc='lower right')
+plt.grid(True)
+plt.savefig(HERE/"spam_ham_top_words.png", dpi=300, bbox_inches="tight")
+plt.show()
